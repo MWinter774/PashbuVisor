@@ -2,7 +2,8 @@
 
 # Assmebler settings
 ASSEMBLER=nasm
-ASSEMBLER_FLAGS=-fbin
+ASSEMBLER_INCLUDE_FOLDER=./include
+ASSEMBLER_FLAGS=-fbin -i$(ASSEMBLER_INCLUDE_FOLDER)
 
 # Bootloader files
 BOOTLOADER_ENTRY_FOLDER=./src

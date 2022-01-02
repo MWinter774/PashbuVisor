@@ -18,7 +18,5 @@ init_protected_mode: ; we are now using 32-bit instructions
     mov fs, ax
     mov gs, ax
 
-    mov ebp, 0x90000 ; 6. update the stack right at the top of the free space
-    mov esp, ebp
+    ret
 
-    jmp $

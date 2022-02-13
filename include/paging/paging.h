@@ -1,4 +1,4 @@
 #pragma once
 
-void setup_page_directory();
+void initialize_paging();
 

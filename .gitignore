@@ -37,3 +37,8 @@ out/
 # Vim files
 tags
 *.swp
+
+*.files
+*.gutctags
+.opengrok/
+

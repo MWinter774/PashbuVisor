@@ -1,16 +1,20 @@
 #include <paging/paging.h>
-#define PAGE_DIRECTORY_POINTER_TABLE_SIZE (4)
+#define PML4_TABLE_SIZE (512)
+#define PAGE_DIRECTORY_POINTER_TABLE_SIZE (512)
 #define PAGE_DIRECTORY_SIZE (512)
-#define PAGE_TABLE_SIZE (1024)
+#define PAGE_TABLE_SIZE (512)
+
+// The PML4 Table, each entry holds pointer to a page directory pointer table.
+unsigned long pml4_table[PML4_TABLE_SIZE] __attribute__((aligned(4096)));
 
 // The PDPT, each entry holds pointer to a page directory. This is in order to enable PAE.
-unsigned long page_directory_pointer_table[PAGE_DIRECTORY_POINTER_TABLE_SIZE] __attribute__((aligned(32)));
+unsigned long page_directory_pointer_table[PAGE_DIRECTORY_POINTER_TABLE_SIZE] __attribute__((aligned(512)));
 
 // The Page Directory table, each entry holds pointer to a page table and some flags
 unsigned long page_directory[PAGE_DIRECTORY_SIZE] __attribute__((aligned(4096)));
 
 // A Page Table, each entry holds pointer to physical memory and some flags
-unsigned int page_table[PAGE_TABLE_SIZE] __attribute__((aligned(4096)));
+unsigned long page_table[PAGE_TABLE_SIZE] __attribute__((aligned(4096)));
 
 /*
  * Puts page_directory in cr3.
@@ -64,7 +68,7 @@ void setup_page_directory(unsigned long * page_directory, unsigned int page_dire
 /*
  * Initializes a page table. page_table_size SHOULD BE 1024!
  */
-void setup_page_table(unsigned int * page_table, unsigned int page_table_size)
+void setup_page_table(unsigned long * page_table, unsigned int page_table_size)
 {
     for (unsigned int i = 0; i < page_table_size; i++)
     {
@@ -72,10 +76,23 @@ void setup_page_table(unsigned int * page_table, unsigned int page_table_size)
     }
 }
 
+/*
+ * Sets the 9th bit of EFER MSR.
+ */
+void enter_compatibility_mode()
+{
+    asm volatile(   "mov $0xC0000080, %ecx\n;"
+                    "rdmsr\n;"
+                    "or $(1 << 8), %eax\n;"
+                    "wrmsr\n;");
+}
+
 void initialize_paging()
 {
     setup_page_directory(page_directory, sizeof(page_directory));
     setup_page_table(page_table, sizeof(page_table));
+
+    pml4_table[0] = ((unsigned long)page_directory_pointer_table);
 
     page_directory_pointer_table[0] = ((unsigned long)page_directory) | 1;
 
@@ -86,8 +103,12 @@ void initialize_paging()
     // 2MiB (not 4KiB which is 32 bit)
     page_directory[0] = ((unsigned int)page_table) | 0b10000011;
 
-    enable_pae();
     load_page_directory(page_directory);
+
+    enable_pae();
+
+    enter_compatibility_mode();
+
     enable_paging();
 }
 

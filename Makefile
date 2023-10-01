@@ -1,5 +1,13 @@
 ASM=nasm
 ASMFLAGS=-fbin
 
+OUTDIR=out
+
+all: bootsector
+
 bootsector:
-	$(ASM) $(ASMFLAGS) boot.asm -o boot.bin
+	mkdir -p $(OUTDIR)
+	$(ASM) $(ASMFLAGS) boot.asm -o $(OUTDIR)/boot.bin
+
+clean:
+	rm -rf $(OUTDIR)

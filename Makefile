@@ -7,7 +7,7 @@ all: bootsector
 
 bootsector:
 	mkdir -p $(OUTDIR)
-	$(ASM) $(ASMFLAGS) boot.asm -o $(OUTDIR)/boot.bin
+	$(ASM) $(ASMFLAGS) bootsector.asm -o $(OUTDIR)/bootsector.bin
 
 clean:
 	rm -rf $(OUTDIR)

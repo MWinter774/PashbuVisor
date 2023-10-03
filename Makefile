@@ -1,11 +1,13 @@
 ASM=nasm
 ASMFLAGS=-felf64
 
-LD=ld
-LDFLAGS=-n -T linker.ld
 
 OUTDIR=out
 SRCDIR=src
+BUILDDIR=build
+
+LD=ld
+LDFLAGS=-n -T $(BUILDDIR)/linker.ld
 
 all: multiboot2_header boot
 	$(LD) $(LDFLAGS) $(OUTDIR)/multiboot2_header.o $(OUTDIR)/boot.o -o $(OUTDIR)/PashbuVisor.bin

@@ -1,13 +1,22 @@
 ASM=nasm
-ASMFLAGS=-fbin
+ASMFLAGS=-felf64
+
+LD=ld
+LDFLAGS=-n -T linker.ld
 
 OUTDIR=out
+SRCDIR=src
 
-all: bootsector
+all: multiboot2_header boot
+	$(LD) $(LDFLAGS) $(OUTDIR)/multiboot2_header.o $(OUTDIR)/boot.o -o $(OUTDIR)/PashbuVisor.bin
 
-bootsector:
+multiboot2_header:
 	mkdir -p $(OUTDIR)
-	$(ASM) $(ASMFLAGS) bootsector.asm -o $(OUTDIR)/bootsector.bin
+	$(ASM) $(ASMFLAGS) $(SRCDIR)/multiboot2_header.asm -o $(OUTDIR)/multiboot2_header.o
+
+boot:
+	mkdir -p $(OUTDIR)
+	$(ASM) $(ASMFLAGS) $(SRCDIR)/boot.asm -o $(OUTDIR)/boot.o
 
 clean:
 	rm -rf $(OUTDIR)
